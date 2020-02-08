@@ -7,6 +7,18 @@ class App extends Component {
     todos: todosList
   };
 
+  //find todo to modify and delete
+  handleToggleComplete = (event, todoIdToToggle) => {
+    const newTodos = this.state.todos.slice();
+    const newnewTodos = newTodos.map(todo => {
+      if (todo.id === todoIdToToggle) {
+        todo.completed = !todo.completed;
+      }
+      return todo;
+    });
+    this.setState({ todos: newnewTodos });
+  };
+
   // create a new todo and update my component state
   // so that it has the new todo item
   handleAddTodo = event => {
@@ -22,7 +34,7 @@ class App extends Component {
       this.setState({ todos: newTodos });
       event.target.value = "";
     }
-  }
+  };
 
   render() {
     return (
@@ -36,7 +48,10 @@ class App extends Component {
             autofocus
           />
         </header>
-        <TodoList todos={this.state.todos} />
+        <TodoList
+          todos={this.state.todos}
+          handleToggleComplete={this.handleToggleComplete}
+        />
         <footer className="footer">
           <span className="todo-count">
             <strong>0</strong> item(s) left
@@ -57,6 +72,9 @@ class TodoItem extends Component {
             className="toggle"
             type="checkbox"
             checked={this.props.completed}
+            onChange={event =>
+              this.props.handleToggleComplete(event, this.props.id)
+            }
           />
           <label>{this.props.title}</label>
           <button className="destroy" />
@@ -72,7 +90,12 @@ class TodoList extends Component {
       <section className="main">
         <ul className="todo-list">
           {this.props.todos.map(todo => (
-            <TodoItem title={todo.title} completed={todo.completed} />
+            <TodoItem
+              title={todo.title}
+              completed={todo.completed}
+              id={todo.id}
+              handleToggleComplete={this.props.handleToggleComplete}
+            />
           ))}
         </ul>
       </section>
