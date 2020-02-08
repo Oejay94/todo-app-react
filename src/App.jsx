@@ -6,14 +6,33 @@ class App extends Component {
   state = {
     todos: todosList
   };
+
+  // create a new todo and update my component state
+  // so that it has the new todo item
+  handleAddTodo = event => {
+    if (event.key === "Enter") {
+      const newTodo = {
+        userId: 1,
+        id: Math.floor(Math.random() * 10000),
+        title: event.target.value,
+        completed: false
+      };
+      const newTodos = this.state.todos.slice();
+      newTodos.push(newTodo);
+      this.setState({ todos: newTodos });
+      event.target.value = "";
+    }
+  }
+
   render() {
     return (
       <section className="todoapp">
         <header className="header">
-          <h1>todos</h1>
+          <h1>Todos</h1>
           <input
             className="new-todo"
             placeholder="What needs to be done?"
+            onKeyDown={this.handleAddTodo}
             autofocus
           />
         </header>
@@ -62,4 +81,3 @@ class TodoList extends Component {
 }
 
 export default App;
-
