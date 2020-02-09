@@ -6,8 +6,7 @@ class App extends Component {
   state = {
     todos: todosList
   };
-
-  //find todo to modify and delete
+  //handles the ability to check a todo item as complete
   handleToggleComplete = (event, todoIdToToggle) => {
     const newTodos = this.state.todos.slice();
     const newnewTodos = newTodos.map(todo => {
@@ -29,11 +28,39 @@ class App extends Component {
         title: event.target.value,
         completed: false
       };
+
       const newTodos = this.state.todos.slice();
+
       newTodos.push(newTodo);
+
       this.setState({ todos: newTodos });
+
       event.target.value = "";
     }
+  };
+
+  //handles the ability to delete an individual todo item
+  handleDeleteTodo = (event, todoIdToDelete) => {
+    const newTodoList = this.state.todos.filter(todo => {
+      if (todo.id === todoIdToDelete) {
+        return false;
+      }
+      return true;
+    });
+
+    this.setState({ todos: newTodoList });
+  };
+
+  //handles the ability to delete all todo items that
+  //are marked as completed.
+  handleDeleteList = event => {
+    const deleteList = this.state.todos.filter(todo => {
+      if (todo.completed === true) {
+        return false;
+      }
+      return true;
+    });
+    this.setState({ todos: deleteList });
   };
 
   render() {
@@ -51,12 +78,16 @@ class App extends Component {
         <TodoList
           todos={this.state.todos}
           handleToggleComplete={this.handleToggleComplete}
+          handleDeleteTodo={this.handleDeleteTodo}
+          handleDeleteList={this.handleDeleteList}
         />
         <footer className="footer">
           <span className="todo-count">
             <strong>0</strong> item(s) left
           </span>
-          <button className="clear-completed">Clear completed</button>
+          <button className="clear-completed" onClick={this.handleDeleteList}>
+            Clear completed
+          </button>
         </footer>
       </section>
     );
@@ -77,7 +108,7 @@ class TodoItem extends Component {
             }
           />
           <label>{this.props.title}</label>
-          <button className="destroy" />
+          <button className="destroy" onClick={this.props.handleDeleteTodo} />
         </div>
       </li>
     );
@@ -94,7 +125,12 @@ class TodoList extends Component {
               title={todo.title}
               completed={todo.completed}
               id={todo.id}
-              handleToggleComplete={this.props.handleToggleComplete}
+              handleToggleComplete={event =>
+                this.props.handleToggleComplete(event, todo.id)
+              }
+              handleDeleteTodo={event =>
+                this.props.handleDeleteTodo(event, todo.id)
+              }
             />
           ))}
         </ul>
