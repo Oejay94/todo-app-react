@@ -3,6 +3,8 @@ import "./index.css";
 import todosList from "./todos.json";
 import TodoList from "./TodoList";
 import { Route, NavLink } from "react-router-dom";
+import { connect } from "react-redux";
+import { clearCompletedTodos, addTodo } from "./actions";
 
 class App extends Component {
   state = {
@@ -16,61 +18,22 @@ class App extends Component {
 
   handleCreateTodo = event => {
     if (event.key === "Enter") {
-      const newTodo = this.state.todos.slice();
-      newTodo.push({
-        userId: 1,
-        id: Math.floor(Math.random() * 1000000),
-        title: this.state.value,
-        completed: false
-      });
-      this.setState({
-        todos: newTodo,
-        value: ""
-      });
+      this.props.addTodo(this.state.value);
+      this.setState({ value: "" });
     }
-  };
-
-  handleDeleteTodo = todoIdToDelete => event => {
-    // immutability
-    // create copy
-    const newTodo = this.state.todos.slice();
-    // modify copy
-    // find the index number of todoIdToDelete
-    const todoIndexToDelete = newTodo.findIndex(todo => {
-      if (todo.id === todoIdToDelete) {
-        return true;
-      } else {
-        return false;
-      }
-    });
-    newTodo.splice(todoIndexToDelete, 1);
-    // overwrite original copy with new copy
-    this.setState({ todos: newTodo });
-  };
-
-  handleDeleteCompletedTodos = event => {
-    const newTodos = this.state.todos.filter(todo => todo.completed === false);
-
-    this.setState({ todos: newTodos });
-  };
-
-  handleToggleTodo = todo => event => {
-    const newTodo = this.state;
-    todo.completed = !todo.completed;
-    this.setState({ newTodo });
   };
 
   render() {
     let counter = 0;
-    for (let i = 0; i < this.state.todos.length; i++) {
-      if (this.state.todos[i].completed === false) {
+    for (let i = 0; i < this.props.todos.length; i++) {
+      if (this.props.todos[i].completed === false) {
         counter++;
       }
     }
     return (
       <section className="todoapp">
         <header className="header">
-          <h1>todos</h1>
+          <h1>Todo List</h1>
           <input
             className="new-todo"
             placeholder="What needs to be done?"
@@ -85,10 +48,8 @@ class App extends Component {
           path="/"
           render={() => (
             <TodoList
-              handleToggleTodo={this.handleToggleTodo}
-              handleDeleteCompletedTodos={this.handleDeleteCompletedTodos}
-              handleDeleteTodo={this.handleDeleteTodo}
-              todos={this.state.todos}
+            handleDeleteCompletedTodos={() => this.props.clearCompletedTodos}
+            todos={this.props.todos}
             />
           )}
         />
@@ -97,10 +58,8 @@ class App extends Component {
           path="/active"
           render={() => (
             <TodoList
-              handleToggleTodo={this.handleToggleTodo}
-              handleDeleteCompletedTodos={this.handleDeleteCompletedTodos}
-              handleDeleteTodo={this.handleDeleteTodo}
-              todos={this.state.todos.filter(todo => todo.completed !== true)}
+            handleDeleteCompletedTodos={() => this.props.clearCompletedTodos}
+            todos={this.props.todos.filter(todo => todo.completed !== true)}
             />
           )}
         />
@@ -109,10 +68,8 @@ class App extends Component {
           path="/completed"
           render={() => (
             <TodoList
-              handleToggleTodo={this.handleToggleTodo}
-              handleDeleteCompletedTodos={this.handleDeleteCompletedTodos}
-              handleDeleteTodo={this.handleDeleteTodo}
-              todos={this.state.todos.filter(todo => todo.completed === true)}
+            handleDeleteCompletedTodos={() => this.props.clearCompletedTodos}
+            todos={this.props.todos.filter(todo => todo.completed === true)}
             />
           )}
         />
@@ -139,7 +96,7 @@ class App extends Component {
           </ul>
           <button
             className="clear-completed"
-            onClick={this.handleDeleteCompletedTodos}
+            onClick={this.props.clearCompletedTodos}
           >
             Clear completed
           </button>
@@ -149,4 +106,15 @@ class App extends Component {
   }
 }
 
-export default App;
+const mapStateToProps = (state) => {
+  return {
+    todos: state.todos
+  }
+}
+
+const mapDispatchToProps = {
+  clearCompletedTodos,
+  addTodo
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(App);
